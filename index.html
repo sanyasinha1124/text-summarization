@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Text Summarizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen p-6">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-700">🧠 Text Summarizer</h1>
+
+    <textarea id="inputText" rows="8" placeholder="Paste your long text here..." class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"></textarea>
+    
+    <button onclick="summarizeText()" class="mt-4 w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-blue-700 transition duration-200">
+      Summarize
+    </button>
+
+    <div id="summaryBox" class="mt-6 hidden">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">📋 Summary:</h2>
+      <p id="summaryText" class="bg-gray-100 p-4 rounded-lg border border-gray-200 text-gray-700 whitespace-pre-line"></p>
+    </div>
+  </div>
+
+  <script>
+    async function summarizeText() {
+      const text = document.getElementById("inputText").value;
+      const summaryBox = document.getElementById("summaryBox");
+      const summaryText = document.getElementById("summaryText");
+
+      if (!text.trim()) {
+        alert("Please enter some text to summarize.");
+        return;
+      }
+
+      try {
+        const response = await fetch("/summarize", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ text })
+        });
+
+        const result = await response.json();
+
+        if (result.summary) {
+          summaryText.textContent = result.summary;
+          summaryBox.classList.remove("hidden");
+        } else {
+          summaryText.textContent = "Error: " + result.error;
+          summaryBox.classList.remove("hidden");
+        }
+      } catch (error) {
+        summaryText.textContent = "Something went wrong!";
+        summaryBox.classList.remove("hidden");
+      }
+    }
+  </script>
+</body>
+</html>
+
